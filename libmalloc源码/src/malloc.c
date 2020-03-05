@@ -248,7 +248,7 @@ static void *
 default_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
 {
 	zone = runtime_default_zone();
-	
+//	.dylib`nano_calloc
 	return zone->calloc(zone, num_items, size);
 }
 
@@ -1471,7 +1471,7 @@ malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size)
 	if (malloc_check_start && (malloc_check_counter++ >= malloc_check_start)) {
 		internal_check();
 	}
-
+   //这里是zone中的属性函数dylib`default_zone_calloc
 	ptr = zone->calloc(zone, num_items, size);
 	
 	if (malloc_logger) {

@@ -1,15 +1,15 @@
 //
 //  main.m
-//  LGCallocTest
+//  XZTest
 //
-//  Created by cooci on 2019/2/7.
+//  Created by Alan on 3/5/20.
 //
 
 #import <Foundation/Foundation.h>
 #import <malloc/malloc.h>
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-		
 		void *p = calloc(1, 40);
 		NSLog(@"%lu",malloc_size(p));
     }

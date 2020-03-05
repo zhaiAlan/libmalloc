@@ -197,13 +197,15 @@ segregated_size_to_fit(nanozone_t *nanozone, size_t size, size_t *pKey)
 	size_t k, slot_bytes;
 
 	if (0 == size) {
+//		#define SHIFT_NANO_QUANTUM		4
+//		#define NANO_REGIME_QUANTA_SIZE	(1 << SHIFT_NANO_QUANTUM)	这里是1往左4位 16
 		size = NANO_REGIME_QUANTA_SIZE; // Historical behavior
 	}
 	// 40 + 16-1 >> 4 << 4
 	// 40 - 16*3 = 48
 
-	//
-	// 16
+	//                  16                               4
+    //	这里其实就是做了一个16字节对齐
 	k = (size + NANO_REGIME_QUANTA_SIZE - 1) >> SHIFT_NANO_QUANTUM; // round up and shift for number of quanta
 	slot_bytes = k << SHIFT_NANO_QUANTUM;							// multiply by power of two quanta size
 	*pKey = k - 1;													// Zero-based!
@@ -624,12 +626,14 @@ _nano_malloc_check_clear(nanozone_t *nanozone, size_t size, boolean_t cleared_re
 
 	void *ptr;
 	size_t slot_key;
+//	这里是要开辟的控件大小
 	size_t slot_bytes = segregated_size_to_fit(nanozone, size, &slot_key); // Note slot_key is set here
 	mag_index_t mag_index = nano_mag_index(nanozone);
 
 	nano_meta_admin_t pMeta = &(nanozone->meta_data[mag_index][slot_key]);
-
+   //这里是重点代码，这里又是另一部分库代码了
 	ptr = OSAtomicDequeue(&(pMeta->slot_LIFO), offsetof(struct chained_block_s, next));
+	//此处进入为部分容错处理
 	if (ptr) {
 		unsigned debug_flags = nanozone->debug_flags;
 #if NANO_FREE_DEQUEUE_DILIGENCE
